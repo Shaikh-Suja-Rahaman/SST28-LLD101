@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class CafeteriaSystem {
-    private final FileStore store = new FileStore();
+    private final InvoiceRepository store = new FileStore();
     private final InvoiceIdGenerator idGen = new InvoiceIdGenerator(); // one instance
     private final InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
     private final InvoiceFormatter formatter = new InvoiceFormatter();
