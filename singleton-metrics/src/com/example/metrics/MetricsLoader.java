@@ -1,7 +1,8 @@
 package com.example.metrics;
 
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -17,12 +18,12 @@ public class MetricsLoader {
 
     public MetricsRegistry loadFromFile(String path) throws IOException {
         Properties props = new Properties();
-        try (FileInputStream fis = new FileInputStream(path)) {
-            props.load(fis);
-        }
+        InputStream in = MetricsLoader.class.getClassLoader().getResourceAsStream(path);
+        if (in == null) throw new FileNotFoundException(path + " not found in classpath");
+        props.load(in);
 
         // BROKEN: should not create a new instance
-        MetricsRegistry registry = new MetricsRegistry();
+        MetricsRegistry registry = MetricsRegistry.getInstance();
 
         for (String key : props.stringPropertyNames()) {
             String raw = props.getProperty(key, "0").trim();
