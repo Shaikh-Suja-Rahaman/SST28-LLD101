@@ -16,37 +16,73 @@ import java.util.List;
  */
 public class TicketService {
 
+
+
     public IncidentTicket createTicket(String id, String reporterEmail, String title) {
-        // scattered validation (incomplete on purpose)
-        if (id == null || id.trim().isEmpty()) throw new IllegalArgumentException("id required");
-        if (reporterEmail == null || !reporterEmail.contains("@")) throw new IllegalArgumentException("email invalid");
-        if (title == null || title.trim().isEmpty()) throw new IllegalArgumentException("title required");
 
-        IncidentTicket t = new IncidentTicket(id, reporterEmail, title);
-
-        // BAD: mutating after creation
-        t.setPriority("MEDIUM");
-        t.setSource("CLI");
-        t.setCustomerVisible(false);
-
-        List<String> tags = new ArrayList<>();
-        tags.add("NEW");
-        t.setTags(tags);
-
-        return t;
+        return new IncidentTicket.Builder(id, reporterEmail, title)
+                .priority("MEDIUM")
+                .source("CLI")
+                .customerVisible(false)
+                .tags(List.of("NEW"))
+                .build();                // validation happens here, object created once
     }
 
-    public void escalateToCritical(IncidentTicket t) {
-        // BAD: mutating ticket after it has been "created"
-        t.setPriority("CRITICAL");
-        t.getTags().add("ESCALATED"); // list leak
+// Right now escalateToCritical and assign manually copy every single field —
+//  messy and error prone. If you add a new field tomorrow, you must update every method.
+
+
+
+
+    // public IncidentTicket escalateToCritical(IncidentTicket t) {
+    //     //i will have to create a new object if something changes, i can't reuse the old one since its immutable
+    //     List<String> newTags = new ArrayList<>(t.getTags());
+    //     newTags.add("ESCALATED");
+    //             return new IncidentTicket.Builder(t.getId(), t.getReporterEmail(), t.getTitle())
+    //             .priority("CRITICAL")
+    //             .tags(newTags)
+    //             .assigneeEmail(t.getAssigneeEmail())
+    //             .customerVisible(t.isCustomerVisible())
+    //             .slaMinutes(t.getSlaMinutes())
+    //             .source(t.getSource())
+    //             .build();
+
+    // }
+
+        public IncidentTicket escalateToCritical(IncidentTicket t) {
+        List<String> newTags = new ArrayList<>(t.getTags());
+        newTags.add("ESCALATED");
+        return t.toBuilder()
+                .priority("CRITICAL")
+                .tags(newTags)
+                .build();
     }
 
-    public void assign(IncidentTicket t, String assigneeEmail) {
-        // scattered validation
+
+
+
+    // public void assign(IncidentTicket t, String assigneeEmail) {
+    // public IncidentTicket assign(IncidentTicket t, String assigneeEmail) {
+    //     if (assigneeEmail != null && !assigneeEmail.contains("@")) {
+    //         throw new IllegalArgumentException("assigneeEmail invalid");
+    //     }
+    //     // can't mutate — return new ticket with assignee set
+    //     return new IncidentTicket.Builder(t.getId(), t.getReporterEmail(), t.getTitle())
+    //             .priority(t.getPriority())
+    //             .tags(t.getTags())
+    //             .customerVisible(t.isCustomerVisible())
+    //             .slaMinutes(t.getSlaMinutes())
+    //             .source(t.getSource())
+    //             .assigneeEmail(assigneeEmail)
+    //             .build();
+    // }
+
+        public IncidentTicket assign(IncidentTicket t, String assigneeEmail) {
         if (assigneeEmail != null && !assigneeEmail.contains("@")) {
             throw new IllegalArgumentException("assigneeEmail invalid");
         }
-        t.setAssigneeEmail(assigneeEmail);
+        return t.toBuilder()
+                .assigneeEmail(assigneeEmail)
+                .build();
     }
 }

@@ -16,19 +16,25 @@ public class TryIt {
     public static void main(String[] args) {
         TicketService service = new TicketService();
 
+        // 1. Create ticket
         IncidentTicket t = service.createTicket("TCK-1001", "reporter@example.com", "Payment failing on checkout");
-        System.out.println("Created: " + t);
+        System.out.println("Created : " + t);
 
-        // Demonstrate post-creation mutation through service
-        service.assign(t, "agent@example.com");
-        service.escalateToCritical(t);
-        System.out.println("\nAfter service mutations: " + t);
+        // 2. Assign — returns NEW ticket, original unchanged
+        IncidentTicket assigned = service.assign(t, "agent@example.com");
+        System.out.println("\nAssigned : " + assigned);
+        System.out.println("Original unchanged: " + t.getAssigneeEmail()); // still null
 
-        // Demonstrate external mutation via leaked list reference
+        // 3. Escalate — returns NEW ticket
+        IncidentTicket escalated = service.escalateToCritical(assigned);
+        System.out.println("\nEscalated: " + escalated);
+
+        // 4. Prove tags are safe — external mutation has no effect
         List<String> tags = t.getTags();
-        tags.add("HACKED_FROM_OUTSIDE");
-        System.out.println("\nAfter external tag mutation: " + t);
-
-        // Starter compiles; after refactor, you should redesign updates to create new objects instead.
+        try {
+            tags.add("HACKED_FROM_OUTSIDE"); // should throw UnsupportedOperationException
+        } catch (UnsupportedOperationException e) {
+            System.out.println("\nTag mutation blocked! Immutability works ✅");
+        }
     }
 }
