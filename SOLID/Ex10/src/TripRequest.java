@@ -1,3 +1,5 @@
+// Immutable data class for trip request
+// Reasoning: Immutability ensures safety, clarity, and thread-safety for value objects.
 public class TripRequest {
     public final String studentId;
     public final GeoPoint from;

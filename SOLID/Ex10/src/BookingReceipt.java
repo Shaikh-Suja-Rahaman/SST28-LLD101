@@ -1,3 +1,5 @@
+// Immutable data class for booking receipt
+// Reasoning: Immutability ensures safety, clarity, and thread-safety for value objects.
 public class BookingReceipt {
     public final String id;
     public final double fare;

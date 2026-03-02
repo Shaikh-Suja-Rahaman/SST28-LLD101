@@ -1,4 +1,6 @@
-public class DistanceCalculator {
+// Implements IDistanceCalculator for DIP
+// Reasoning: Now used via abstraction in booking logic, enabling testability and extension.
+public class DistanceCalculator implements IDistanceCalculator {
     public double km(GeoPoint a, GeoPoint b) {
         // fake distance: rough Manhattan on scaled degrees for determinism
         double d = Math.abs(a.lat - b.lat) + Math.abs(a.lon - b.lon);
