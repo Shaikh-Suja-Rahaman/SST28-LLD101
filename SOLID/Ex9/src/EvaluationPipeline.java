@@ -1,12 +1,21 @@
+// EvaluationPipeline: now depends on abstractions, not concretes
+// Reason: DIP — easy to substitute test doubles, change implementation, and test
 public class EvaluationPipeline {
-    // DIP violation: high-level module constructs concretes directly
-    public void evaluate(Submission sub) {
-        Rubric rubric = new Rubric();
-        PlagiarismChecker pc = new PlagiarismChecker();
-        CodeGrader grader = new CodeGrader();
-        ReportWriter writer = new ReportWriter();
+    private final PlagiarismCheck checker;
+    private final CodeGrade grader;
+    private final ReportWrite writer;
+    private final Rubric rubric;
 
-        int plag = pc.check(sub);
+    // Dependencies injected via constructor
+    public EvaluationPipeline(PlagiarismCheck checker, CodeGrade grader, ReportWrite writer, Rubric rubric) {
+        this.checker = checker;
+        this.grader = grader;
+        this.writer = writer;
+        this.rubric = rubric;
+    }
+
+    public void evaluate(Submission sub) {
+        int plag = checker.check(sub);
         System.out.println("PlagiarismScore=" + plag);
 
         int code = grader.grade(sub, rubric);
